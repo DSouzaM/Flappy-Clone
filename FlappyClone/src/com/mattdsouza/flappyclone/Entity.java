@@ -3,6 +3,7 @@ package com.mattdsouza.flappyclone;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.vector.Vector2f;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 public abstract class Entity {
 	protected Point location;
@@ -10,7 +11,12 @@ public abstract class Entity {
 	protected boolean visible;
 	protected Image image;
 
-	public Entity() {
+	public Entity(String str) {
+		try {
+			setImage(str);
+		} catch (SlickException se) {
+			se.printStackTrace();
+		}
 		location = new Point();
 		vector = new Vector2f();
 	}
@@ -24,56 +30,70 @@ public abstract class Entity {
 		vector.setX(vx);
 		vector.setY(vy);
 	}
-	
+
 	public void setXVelocity(float vx) {
 		vector.x = vx;
 	}
-	
+
 	public void setYVelocity(float vy) {
 		vector.y = vy;
 	}
-	public void setVisible(boolean visible){
+
+	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
-	
-	public void update(){
+
+	public void update() {
 		location.setX(Math.round(location.getX() + vector.getX()));
 		location.setY(Math.round(location.getY() + vector.getY()));
 	}
 
-	public void setImage(String path) {
-		try {
-			image = new Image("res/" + path + ".png");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void setImage(String path) throws SlickException {
+		image = new Image("res/" + path + ".png");
 	}
-	
-	public int getX(){
+
+	public int getX() {
 		return location.getX();
 	}
-	public int getY(){
+
+	public int getY() {
 		return location.getY();
 	}
-	public Point getLocation(){
+
+	public Point getLocation() {
 		return location;
 	}
-	public int getVX(){
+
+	public int getVX() {
 		return Math.round(vector.getX());
 	}
-	public int getVY(){
+
+	public int getVY() {
 		return Math.round(vector.getY());
 	}
-	
-	public Image getImage(){
+
+	public Image getImage() {
 		return image;
 	}
-	public int getImageWidth(){
+
+	public int getImageWidth() {
 		return image.getWidth();
 	}
-	public int getImageHeight(){
+
+	public int getImageHeight() {
 		return image.getHeight();
 	}
-	
+	public Point getUpperLeftPoint(){
+		return location;
+	}
+	public Point getUpperRightPoint(){
+		return new Point(location.getX()+getImageWidth(),location.getY());
+	}
+	public Point getLowerLeftPoint(){
+		return new Point(location.getX(),location.getY()+getImageHeight());
+	}
+	public Point getLowerRightPoint(){
+		return new Point(location.getX()+getImageWidth(),location.getY()+getImageHeight());
+	}
 
 }
