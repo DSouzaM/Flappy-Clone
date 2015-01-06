@@ -1,0 +1,5 @@
+Ideas:
+
+variable gap space dependent on time running
+add something to check distance to avoid having two gaps at opposite ends 
+have a COLLISION_TOLERANCE constant to allow some leeway in collisions.

@@ -10,6 +10,7 @@ public abstract class Entity {
 	protected Vector2f vector;
 	protected boolean visible;
 	protected Image image;
+	protected float vx, vy;
 
 	public Entity(String str) {
 		try {
@@ -19,6 +20,8 @@ public abstract class Entity {
 		}
 		location = new Point();
 		vector = new Vector2f();
+		vx = 0;
+		vy = 0;
 	}
 
 	public void setLocation(int x, int y) {
@@ -27,16 +30,20 @@ public abstract class Entity {
 	}
 
 	public void setVelocity(float vx, float vy) {
-		vector.setX(vx);
-		vector.setY(vy);
+		this.vx = vy;
+		this.vy = vy;
+		vector.setX(this.vx);
+		vector.setY(this.vy);
 	}
 
 	public void setXVelocity(float vx) {
-		vector.x = vx;
+		this.vx = vx;
+		vector.setX(this.vx);
 	}
 
 	public void setYVelocity(float vy) {
-		vector.y = vy;
+		this.vy = vy;
+		vector.setY(this.vy);
 	}
 
 	public void setVisible(boolean visible) {
@@ -64,12 +71,12 @@ public abstract class Entity {
 		return location;
 	}
 
-	public int getVX() {
-		return Math.round(vector.getX());
+	public float getVX() {
+		return vx;
 	}
 
-	public int getVY() {
-		return Math.round(vector.getY());
+	public float getVY() {
+		return vy;
 	}
 
 	public Image getImage() {
