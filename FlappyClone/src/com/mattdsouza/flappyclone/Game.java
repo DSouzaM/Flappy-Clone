@@ -80,6 +80,9 @@ public class Game extends BasicGame {
 				- DISTANCE_BETWEEN_WALLS) {
 			createWalls();
 		}
+		if (checkCollision()){
+			player.setRotation(180);
+		}
 	}
 
 	@Override
@@ -98,12 +101,12 @@ public class Game extends BasicGame {
 	private void createWalls() {
 		Wall w1 = new Wall();
 		Wall w2 = new Wall();
-		int yPos = rand.nextInt(400) - w1.getImageHeight();
+		int yPos = rand.nextInt(400) + 50 - w1.getImageHeight();
 		w1.setLocation(WIDTH, yPos);
 		w1.setXVelocity(WALL_VELOCITY);
 		w1.setVisible(true);
 		w2.setLocation(WIDTH,
-				yPos + 3 * player.getImageHeight() + w2.getImageHeight());
+				yPos + 11 * player.getImageHeight()/3 + w2.getImageHeight());
 		w2.setXVelocity(WALL_VELOCITY);
 		w2.setVisible(true);
 		wallList.add(w1);
@@ -113,7 +116,10 @@ public class Game extends BasicGame {
 	public boolean checkCollision() {
 		boolean collision = false;
 		for (Wall wall : wallList) {
-			// TODO
+			if (player.collidesWith(wall)){
+				collision = true;
+				break;
+			}
 		}
 		return collision;
 	}

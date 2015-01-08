@@ -1,6 +1,13 @@
 Ideas:
 
-variable gap space dependent on time running
+
 have a COLLISION_TOLERANCE constant to allow some leeway in collisions.
+easy mode / hard mode - different gap size + hit tolerance + lives
+
 remember the nextSprite() command
 different wall images (fishing hook w/ boat, seaweed, anemone, coral, bird talons, etc)
+
+add states for menu: 
+running - walls update and everything, fish going, background going, shows lives and score
+
+not running - shows retry window with no walls, fish and background going, shows final score and high scores. option to toggle hard and easy modes with a key

@@ -5,6 +5,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.geom.Shape;
 
 public abstract class Entity {
 	protected Point location;
@@ -16,6 +17,7 @@ public abstract class Entity {
 	protected abstract int getSpriteWidth();
 	protected abstract int getSpriteHeight();
 	protected int spriteState;
+	protected Shape hitbox;
 
 	public Entity(String str) {
 		try {
@@ -35,6 +37,8 @@ public abstract class Entity {
 	public void update() {
 		location.setX(Math.round(location.getX() + vector.getX()));
 		location.setY(Math.round(location.getY() + vector.getY()));
+		hitbox.setX(location.getX());
+		hitbox.setY(location.getY());
 	}
 
 	public void setLocation(int x, int y) {
@@ -124,5 +128,10 @@ public abstract class Entity {
 	public Point getLowerRightPoint(){
 		return new Point(location.getX()+getImageWidth(),location.getY()+getImageHeight());
 	}
-
+	public Shape getHitbox(){
+		return hitbox;
+	}
+	public boolean collidesWith(Entity e){
+		return e.getHitbox().intersects(hitbox) || e.getHitbox().contains(hitbox);
+	}
 }
