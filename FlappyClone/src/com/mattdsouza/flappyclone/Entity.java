@@ -4,17 +4,24 @@ import org.lwjgl.util.Point;
 import org.lwjgl.util.vector.Vector2f;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
 
 public abstract class Entity {
 	protected Point location;
 	protected Vector2f vector;
 	protected boolean visible;
+	protected SpriteSheet sheet;
 	protected Image image;
 	protected float vx, vy;
+	protected abstract int getSpriteWidth();
+	protected abstract int getSpriteHeight();
+	protected int spriteState;
 
 	public Entity(String str) {
 		try {
-			setImage(str);
+			setSpriteSheet(str);
+			setImage(0,0);
+			image = sheet.getSprite(0, 0);
 		} catch (SlickException se) {
 			se.printStackTrace();
 		}
@@ -22,6 +29,12 @@ public abstract class Entity {
 		vector = new Vector2f();
 		vx = 0;
 		vy = 0;
+		spriteState = 0;
+	}
+	
+	public void update() {
+		location.setX(Math.round(location.getX() + vector.getX()));
+		location.setY(Math.round(location.getY() + vector.getY()));
 	}
 
 	public void setLocation(int x, int y) {
@@ -50,43 +63,52 @@ public abstract class Entity {
 		this.visible = visible;
 	}
 
-	public void update() {
-		location.setX(Math.round(location.getX() + vector.getX()));
-		location.setY(Math.round(location.getY() + vector.getY()));
+	public void setSpriteSheet(String path) throws SlickException {
+		sheet = new SpriteSheet("res/" + path + ".png", getSpriteWidth(), getSpriteHeight());
 	}
-
-	public void setImage(String path) throws SlickException {
-		image = new Image("res/" + path + ".png");
+	
+	public void setImage(int x, int y) {
+		image = sheet.getSprite(x,y);
 	}
-
+	public void setRotation(int angle) {
+		image.setRotation(angle);
+	}
+	public void nextSpriteState(){
+		float rotation = this.getRotation();
+		spriteState++;
+		if (spriteState >= sheet.getHorizontalCount()){
+			spriteState = 0;
+		}
+		image = sheet.getSprite(spriteState, 0);
+		image.setRotation(rotation);
+	}	
+	public void rotate(int angle){
+		image.rotate(angle);
+	}	
 	public int getX() {
 		return location.getX();
 	}
-
 	public int getY() {
 		return location.getY();
 	}
-
 	public Point getLocation() {
 		return location;
 	}
-
 	public float getVX() {
 		return vx;
 	}
-
 	public float getVY() {
 		return vy;
+	}	
+	public float getRotation(){
+		return image.getRotation();
 	}
-
 	public Image getImage() {
 		return image;
 	}
-
 	public int getImageWidth() {
 		return image.getWidth();
 	}
-
 	public int getImageHeight() {
 		return image.getHeight();
 	}
