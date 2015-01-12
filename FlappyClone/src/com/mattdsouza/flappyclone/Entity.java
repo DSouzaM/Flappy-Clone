@@ -7,21 +7,22 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.geom.Shape;
 
-public abstract class Entity {
+public class Entity {
 	protected Point location;
 	protected Vector2f vector;
 	protected boolean visible;
 	protected SpriteSheet sheet;
 	protected Image image;
 	protected float vx, vy;
-	protected abstract int getSpriteWidth();
-	protected abstract int getSpriteHeight();
+	protected int spriteWidth, spriteHeight;
 	protected int spriteState;
-	protected Shape hitbox;
 
-	public Entity(String str) {
+
+	public Entity(String imgName, int spriteWidth, int spriteHeight) {
+		this.spriteWidth = spriteWidth;
+		this.spriteHeight = spriteHeight;
 		try {
-			setSpriteSheet(str);
+			setSpriteSheet(imgName);
 			setImage(0,0);
 			image = sheet.getSprite(0, 0);
 		} catch (SlickException se) {
@@ -37,12 +38,16 @@ public abstract class Entity {
 	public void update() {
 		location.setX(Math.round(location.getX() + vector.getX()));
 		location.setY(Math.round(location.getY() + vector.getY()));
-		hitbox.setX(location.getX());
-		hitbox.setY(location.getY());
 	}
 
 	public void setLocation(int x, int y) {
 		location.setX(x);
+		location.setY(y);
+	}
+	public void setX(int x) {
+		location.setX(x);
+	}
+	public void setY(int y){
 		location.setY(y);
 	}
 
@@ -116,6 +121,12 @@ public abstract class Entity {
 	public int getImageHeight() {
 		return image.getHeight();
 	}
+	public int getSpriteWidth() {
+		return spriteWidth;
+	}
+	public int getSpriteHeight() {
+		return spriteHeight;
+	}
 	public Point getUpperLeftPoint(){
 		return location;
 	}
@@ -128,10 +139,6 @@ public abstract class Entity {
 	public Point getLowerRightPoint(){
 		return new Point(location.getX()+getImageWidth(),location.getY()+getImageHeight());
 	}
-	public Shape getHitbox(){
-		return hitbox;
-	}
-	public boolean collidesWith(Entity e){
-		return e.getHitbox().intersects(hitbox) || e.getHitbox().contains(hitbox);
-	}
+
+
 }
