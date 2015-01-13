@@ -11,3 +11,11 @@ add states for menu:
 running - walls update and everything, fish going, background going, shows lives and score
 
 not running - shows retry window with no walls, fish and background going, shows final score and high scores. option to toggle hard and easy modes with a key
+
+Next Steps: 
+add text file with high scores, have that displayed in END state. add code to overwrite high scores & code to avoid hitting space to restart immediately after losing
+work on different sprites for walls and an enum to include their varied filenames and frames per sprite, random generator for said walls
+work on different background elements
+work on sound
+work on alternate sprites/sounds for MLG mode
+add code to switch between modes (toggle with M) 

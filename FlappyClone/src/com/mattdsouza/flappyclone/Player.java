@@ -12,7 +12,7 @@ public class Player extends Entity {
 		this("Fish");
 	}
 	public Player(String imgName){
-		super(imgName, SPRITE_WIDTH, SPRITE_HEIGHT);
+		super(imgName, SPRITE_WIDTH, SPRITE_HEIGHT,0);
 		hitbox = new Ellipse(location.getX(),location.getY(),36,20);
 	}
 	@Override

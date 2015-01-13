@@ -8,24 +8,30 @@ import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
+enum State {
+	START, PLAYING, END;
+}
 
 public class Game extends BasicGame {
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	private static final float GRAVITY = .6f;
 	private static final float MAX_GRAVITY = 10;
-	private static final int DISTANCE_BETWEEN_WALLS = 400;
 	private static final float WALL_VELOCITY = -5;
 	private static final float JUMP_VELOCITY = -12;
 	private static final float BACKGROUND_VELOCITY = -1;
-	
-	private State gameState;	
-	private Player player;	
-	private Entity background; 
+
+	private State gameState;
+	private Player player;
+	private Entity background;
+	private Image titleScreen;
 	private int timeSinceLastUpdate;
+	private int defaultX, defaultY;
+	private int score;
 	private ArrayList<Wall> wallList;
 	private Random rand;
 
@@ -35,98 +41,110 @@ public class Game extends BasicGame {
 
 	@Override
 	public void init(GameContainer gc) throws SlickException {
-		gc.getHeight();
 		gc.getGraphics().setBackground(new Color(0x0f84d2));
-		background = new Entity("background",2400,600);
+		titleScreen = new Image("res/sprites/titleScreen.png");
+
+		background = new Entity("background", 2400, 600, 0);
 		background.setXVelocity(BACKGROUND_VELOCITY);
-		
-		
 		player = new Player();
-		player.setLocation((gc.getWidth() - player.getImageWidth()) / 2,
-				(gc.getHeight() - player.getImageHeight()) / 2);
+		defaultX = (gc.getWidth() - player.getImageWidth()) / 2;
+		defaultY = (gc.getHeight() - player.getImageHeight()) / 2;
+		player.setLocation(defaultX, defaultY);
 		player.setVelocity(0, 0);
 		gameState = State.START;
-		startGame();
 	}
 
 	@Override
 	public void update(GameContainer gc, int delta) throws SlickException {
 		Input input = gc.getInput();
-		timeSinceLastUpdate+=delta;
-		
-		if (input.isKeyPressed(Input.KEY_SPACE)) {
-			player.setYVelocity(JUMP_VELOCITY);
-			player.getImage().setRotation(-30);
-		}
-		
+		timeSinceLastUpdate += delta;
+
 		while (timeSinceLastUpdate / 17 > 0) { // for every 17ms tick (60fps)
 			background.update();
-			if (background.getX() <= -1600){
+			if (background.getX() <= -1600) {
 				background.setX(0);
 			}
-			System.out.println(background.getX());
-			
-			
-			//code dependent on State of program
-			if (gameState == State.START) {
-				
-				
-				
-			} else if (gameState == State.PLAYING) {
-					// player
-					applyGravity(player);
-					player.update();
-					if (player.getRotation() < 30) {
-						player.rotate(1);
-					}
 
-					// walls
-					for (int i = 0; i < wallList.size(); i++) {
-						Wall wall = wallList.get(i);
-						wall.update();
-						if (wall.getX() < -1 * wall.getImageWidth()-5) {
-							wallList.remove(i);
-							i--;
-						}					
+			// code dependent on State of program
+			if (gameState == State.START) {
+				if (input.isKeyPressed(Input.KEY_SPACE)) {
+					startGame();
+					gameState = State.PLAYING;
+				}
+			} else if (gameState == State.PLAYING) {
+				// player
+				applyGravity(player);
+				player.update();
+				if (player.getRotation() < 30) {
+					player.rotate(1);
+				}
+				if (input.isKeyPressed(Input.KEY_SPACE)) {
+					player.setYVelocity(JUMP_VELOCITY);
+					player.getImage().setRotation(-30);
+				}
+				// walls
+				for (int i = 0; i < wallList.size(); i++) {
+					Wall wall = wallList.get(i);
+					wall.update();
+					if (wall.getX() < -1 * wall.getImageWidth() - 5) {
+						wallList.remove(i);
+						i--;
 					}
-					timeSinceLastUpdate -= 17;
-				
-				if (wallList.get(wallList.size() - 1).getX() < WIDTH
-						- DISTANCE_BETWEEN_WALLS) {
+				}
+
+				if (wallList.get(wallList.size() - 1).getX() < WIDTH - 400) {
 					createWalls();
+					score++;
 				}
 				if (checkCollision()) {
-					player.setRotation(180);
-					// TODO change to endGame() method once created
+					endGame();
+				}
+			} else if (gameState == State.END) {
+				if (input.isKeyPressed(Input.KEY_SPACE)) {
+					startGame();
 				}
 			}
+			timeSinceLastUpdate -= 17;
 		}
-		
+
 	}
 
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
-		
-		g.drawImage(background.getImage(), background.getX(),background.getY());
+
+		g.drawImage(background.getImage(), background.getX(), background.getY());
 		g.drawImage(player.getImage(), player.getX(), player.getY());
 		if (gameState == State.START) {
-			//TODO display menu with prompt to start and prompt to change mode
-		} else if (gameState == State.PLAYING) {
-			//TODO display score, lives 
+			g.drawImage(titleScreen, (WIDTH - titleScreen.getWidth()) / 2, 50);
+		} else {
 			for (Wall wall : wallList) {
 				g.drawImage(wall.getImage(), wall.getX(), wall.getY());
 			}
-		} else if (gameState == State.END){
-			//TODO display menu with high scores, option to add high score if applicable, prompt to restart and prompt to change mode
+			if (gameState == State.PLAYING) {
+				g.drawString("Score: " + score, 10, HEIGHT - 20);
+			} else if (gameState == State.END) {
+				// TODO display menu with high scores, option to add high score
+				// if applicable, prompt to restart and prompt to change mode
+			}
 		}
 	}
 
 	public void startGame() {
+		System.out.println("startGame() called");
+		player.setLocation(defaultX, defaultY);
+		player.setVelocity(0, 0);
+		player.setRotation(0);
 		timeSinceLastUpdate = 0;
+		score = 0;
 		wallList = new ArrayList<Wall>();
 		rand = new Random();
 		createWalls();
 		gameState = State.PLAYING;
+	}
+
+	public void endGame() {
+		System.out.println("endGame() called");
+		gameState = State.END;
 	}
 
 	public void applyGravity(Entity entity) {
@@ -175,6 +193,7 @@ public class Game extends BasicGame {
 					"Flappy Clone"));
 			flappyGame.setDisplayMode(WIDTH, HEIGHT, false);
 			flappyGame.setVSync(true);
+			flappyGame.setShowFPS(false);
 
 			flappyGame.start();
 		} catch (SlickException e) {

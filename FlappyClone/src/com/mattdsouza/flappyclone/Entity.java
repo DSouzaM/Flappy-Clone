@@ -14,13 +14,14 @@ public class Entity {
 	protected SpriteSheet sheet;
 	protected Image image;
 	protected float vx, vy;
-	protected int spriteWidth, spriteHeight;
-	protected int spriteState;
+	protected int spriteWidth, spriteHeight, spriteState, framesPassed, framesBetweenUpdates;
 
 
-	public Entity(String imgName, int spriteWidth, int spriteHeight) {
+	// framesBetweenUpdates = 0 means there is only one sprite.
+	public Entity(String imgName, int spriteWidth, int spriteHeight, int framesBetweenUpdates) {
 		this.spriteWidth = spriteWidth;
 		this.spriteHeight = spriteHeight;
+		this.framesBetweenUpdates = framesBetweenUpdates;
 		try {
 			setSpriteSheet(imgName);
 			setImage(0,0);
@@ -33,11 +34,17 @@ public class Entity {
 		vx = 0;
 		vy = 0;
 		spriteState = 0;
+		framesPassed = 0;
 	}
 	
 	public void update() {
 		location.setX(Math.round(location.getX() + vector.getX()));
 		location.setY(Math.round(location.getY() + vector.getY()));
+		framesPassed++;
+		if (framesBetweenUpdates != 0 && framesBetweenUpdates==framesPassed) {
+			framesPassed = 0;
+			this.nextSpriteState();
+		}
 	}
 
 	public void setLocation(int x, int y) {
@@ -73,7 +80,7 @@ public class Entity {
 	}
 
 	public void setSpriteSheet(String path) throws SlickException {
-		sheet = new SpriteSheet("res/" + path + ".png", getSpriteWidth(), getSpriteHeight());
+		sheet = new SpriteSheet("res/sprites/" + path + ".png", getSpriteWidth(), getSpriteHeight());
 	}
 	
 	public void setImage(int x, int y) {
