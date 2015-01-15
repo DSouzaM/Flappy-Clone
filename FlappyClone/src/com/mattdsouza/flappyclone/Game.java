@@ -34,6 +34,7 @@ public class Game extends BasicGame {
 	private int score;
 	private ArrayList<Wall> wallList;
 	private Random rand;
+	private HighScoreController highscores;
 
 	public Game(String title) {
 		super(title);
@@ -83,14 +84,7 @@ public class Game extends BasicGame {
 					player.getImage().setRotation(-30);
 				}
 				// walls
-				for (int i = 0; i < wallList.size(); i++) {
-					Wall wall = wallList.get(i);
-					wall.update();
-					if (wall.getX() < -1 * wall.getImageWidth() - 5) {
-						wallList.remove(i);
-						i--;
-					}
-				}
+				updateWalls();
 
 				if (wallList.get(wallList.size() - 1).getX() < WIDTH - 400) {
 					createWalls();
@@ -100,9 +94,14 @@ public class Game extends BasicGame {
 					endGame();
 				}
 			} else if (gameState == State.END) {
-				if (input.isKeyPressed(Input.KEY_SPACE)) {
+				if (player.getX() > 0-player.getImageWidth()){
+					player.update();
+					input.clearKeyPressedRecord();
+				}
+				else if (input.isKeyPressed(Input.KEY_SPACE)) {
 					startGame();
 				}
+				updateWalls();
 			}
 			timeSinceLastUpdate -= 17;
 		}
@@ -144,12 +143,26 @@ public class Game extends BasicGame {
 
 	public void endGame() {
 		System.out.println("endGame() called");
+		player.setYVelocity(0);
+		player.setXVelocity(WALL_VELOCITY);
+		highscores = new HighScoreController();
+		System.out.println(highscores.entryList);
 		gameState = State.END;
 	}
 
 	public void applyGravity(Entity entity) {
 		if (entity.getVY() < MAX_GRAVITY) {
 			entity.setYVelocity(entity.getVY() + GRAVITY);
+		}
+	}
+	public void updateWalls(){
+		for (int i = 0; i < wallList.size(); i++) {
+			Wall wall = wallList.get(i);
+			wall.update();
+			if (wall.getX() < -1 * wall.getImageWidth() - 5) {
+				wallList.remove(i);
+				i--;
+			}
 		}
 	}
 
