@@ -40,6 +40,7 @@ public class Game extends BasicGame {
 	private TextField hsTextField;
 	private boolean isNewHighScore;
 
+	private boolean readyForNewGame;
 
 
 	public Game(String title) {
@@ -62,7 +63,7 @@ public class Game extends BasicGame {
 		hsTextField = new TextField(gc, gc.getDefaultFont(), 336, 400, 100, 18);
 		hsTextField.setMaxLength(8);
 		
-		
+		readyForNewGame = true;
 	}
 
 	@Override
@@ -100,7 +101,7 @@ public class Game extends BasicGame {
 					createWalls();
 					score++;
 				}
-				if (checkCollision()) {
+				if (checkCollision() || player.getY() < -1*player.getImageHeight() || player.getY() > HEIGHT) {
 					endGame();
 				}
 			} else if (gameState == State.END) {
@@ -116,9 +117,13 @@ public class Game extends BasicGame {
 				if (player.getX() > 0 - player.getImageWidth()) {
 					player.update();
 					input.clearKeyPressedRecord();
-				} else if (input.isKeyPressed(Input.KEY_SPACE)) {
-					startGame();
+				} else {
+					readyForNewGame = true;
+					if (input.isKeyPressed(Input.KEY_SPACE)) {
+						startGame();
+					}
 				}
+				
 				updateWalls();
 				
 			}
@@ -141,9 +146,14 @@ public class Game extends BasicGame {
 			if (gameState == State.PLAYING) {
 				g.drawString("Score: " + score, 10, HEIGHT - 20);
 			} else if (gameState == State.END) {
-				g.drawString(highscores, 316, (HEIGHT - 125) / 2);
+				g.drawString("Your score: " + score, 316, 180);
+				g.drawString(highscores, 316, 225);
 				if (isNewHighScore) {
+					g.drawString("Enter your name to submit your high score!", 200, 370);
 					hsTextField.render(gc, g);
+				}
+				if (readyForNewGame) {
+					g.drawString("Press space to restart.", 280, 550);
 				}
 				// TODO display menu with high scores, option to add high score
 				// if applicable, prompt to restart and prompt to change mode
@@ -176,7 +186,10 @@ public class Game extends BasicGame {
 		} else {
 			isNewHighScore = false;
 		}
+		readyForNewGame = false;
 		gameState = State.END;
+		
+
 	}
 
 	public void applyGravity(Entity entity) {
@@ -197,9 +210,9 @@ public class Game extends BasicGame {
 	}
 
 	private void createWalls() {
-		Wall w1 = new Wall();
-		Wall w2 = new Wall();
-		int yPos = rand.nextInt(400) + 50 - w1.getImageHeight();
+		Wall w1 = new Wall("hooks");
+		Wall w2 = new Wall("seaweed");
+		int yPos = rand.nextInt(350) + 50 - w1.getImageHeight();
 
 		w1.setLocation(WIDTH, yPos);
 		w1.setXVelocity(WALL_VELOCITY);

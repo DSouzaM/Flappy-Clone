@@ -3,12 +3,12 @@ Ideas:
 
 
 
-different wall images (fishing hook w/ boat, seaweed, anemone, coral, bird talons, etc)
+different wall images (anemone, coral,)
 
 add states for menu: 
 
 Next Steps: 
-work on different sprites for walls and an enum to include their varied filenames and frames per sprite, random generator for said walls
+
 work on different background elements
 work on sound
 work on alternate sprites/sounds for MLG mode
