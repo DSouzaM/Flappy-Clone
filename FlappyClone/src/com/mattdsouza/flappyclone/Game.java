@@ -11,6 +11,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.gui.TextField;
 
 enum State {
 	START, PLAYING, END;
@@ -34,7 +35,12 @@ public class Game extends BasicGame {
 	private int score;
 	private ArrayList<Wall> wallList;
 	private Random rand;
-	private HighScoreController highscores;
+	private HighScoreController highscoreController;
+	private String highscores;
+	private TextField hsTextField;
+	private boolean isNewHighScore;
+
+
 
 	public Game(String title) {
 		super(title);
@@ -53,6 +59,10 @@ public class Game extends BasicGame {
 		player.setLocation(defaultX, defaultY);
 		player.setVelocity(0, 0);
 		gameState = State.START;
+		hsTextField = new TextField(gc, gc.getDefaultFont(), 336, 400, 100, 18);
+		hsTextField.setMaxLength(8);
+		
+		
 	}
 
 	@Override
@@ -94,14 +104,23 @@ public class Game extends BasicGame {
 					endGame();
 				}
 			} else if (gameState == State.END) {
-				if (player.getX() > 0-player.getImageWidth()){
+				if (isNewHighScore) {
+					hsTextField.setFocus(true);
+					if (input.isKeyPressed(Input.KEY_ENTER) && !hsTextField.getText().equals("")) {
+						highscoreController.addNewScore(hsTextField.getText().toUpperCase(), score);
+						highscoreController.updateList();
+						highscores = highscoreController.getHighScores();
+						isNewHighScore = false;
+					}
+				}
+				if (player.getX() > 0 - player.getImageWidth()) {
 					player.update();
 					input.clearKeyPressedRecord();
-				}
-				else if (input.isKeyPressed(Input.KEY_SPACE)) {
+				} else if (input.isKeyPressed(Input.KEY_SPACE)) {
 					startGame();
 				}
 				updateWalls();
+				
 			}
 			timeSinceLastUpdate -= 17;
 		}
@@ -122,6 +141,10 @@ public class Game extends BasicGame {
 			if (gameState == State.PLAYING) {
 				g.drawString("Score: " + score, 10, HEIGHT - 20);
 			} else if (gameState == State.END) {
+				g.drawString(highscores, 316, (HEIGHT - 125) / 2);
+				if (isNewHighScore) {
+					hsTextField.render(gc, g);
+				}
 				// TODO display menu with high scores, option to add high score
 				// if applicable, prompt to restart and prompt to change mode
 			}
@@ -129,7 +152,6 @@ public class Game extends BasicGame {
 	}
 
 	public void startGame() {
-		System.out.println("startGame() called");
 		player.setLocation(defaultX, defaultY);
 		player.setVelocity(0, 0);
 		player.setRotation(0);
@@ -138,15 +160,22 @@ public class Game extends BasicGame {
 		wallList = new ArrayList<Wall>();
 		rand = new Random();
 		createWalls();
+		hsTextField.setText("");
+		hsTextField.setFocus(false);
+		isNewHighScore = false;
 		gameState = State.PLAYING;
 	}
 
 	public void endGame() {
-		System.out.println("endGame() called");
 		player.setYVelocity(0);
 		player.setXVelocity(WALL_VELOCITY);
-		highscores = new HighScoreController();
-		System.out.println(highscores.entryList);
+		highscoreController = new HighScoreController();
+		highscores = highscoreController.getHighScores();
+		if (highscoreController.checkNewScore(score)) {
+			isNewHighScore = true;
+		} else {
+			isNewHighScore = false;
+		}
 		gameState = State.END;
 	}
 
@@ -155,7 +184,8 @@ public class Game extends BasicGame {
 			entity.setYVelocity(entity.getVY() + GRAVITY);
 		}
 	}
-	public void updateWalls(){
+
+	public void updateWalls() {
 		for (int i = 0; i < wallList.size(); i++) {
 			Wall wall = wallList.get(i);
 			wall.update();
@@ -170,6 +200,7 @@ public class Game extends BasicGame {
 		Wall w1 = new Wall();
 		Wall w2 = new Wall();
 		int yPos = rand.nextInt(400) + 50 - w1.getImageHeight();
+
 		w1.setLocation(WIDTH, yPos);
 		w1.setXVelocity(WALL_VELOCITY);
 		w1.setVisible(true);
