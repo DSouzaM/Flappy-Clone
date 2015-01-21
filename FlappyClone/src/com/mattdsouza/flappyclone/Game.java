@@ -36,6 +36,7 @@ public class Game extends BasicGame {
 	private ArrayList<Wall> wallList;
 	private Random rand;
 	private HighScoreController highscoreController;
+	private AudioController audioController;
 	private String highscores;
 	private TextField hsTextField;
 	private boolean isNewHighScore;
@@ -62,7 +63,7 @@ public class Game extends BasicGame {
 		gameState = State.START;
 		hsTextField = new TextField(gc, gc.getDefaultFont(), 336, 400, 100, 18);
 		hsTextField.setMaxLength(8);
-		
+		audioController = new AudioController();
 		readyForNewGame = true;
 	}
 
@@ -76,12 +77,16 @@ public class Game extends BasicGame {
 			if (background.getX() <= -1600) {
 				background.setX(0);
 			}
-
+			
 			// code dependent on State of program
 			if (gameState == State.START) {
 				if (input.isKeyPressed(Input.KEY_SPACE)) {
 					startGame();
+					audioController.playJump();
 					gameState = State.PLAYING;
+				} else if (input.isKeyPressed(Input.KEY_M)){
+					audioController.swapModes();
+					audioController.initSounds();
 				}
 			} else if (gameState == State.PLAYING) {
 				// player
@@ -92,6 +97,7 @@ public class Game extends BasicGame {
 				}
 				if (input.isKeyPressed(Input.KEY_SPACE)) {
 					player.setYVelocity(JUMP_VELOCITY);
+					audioController.playJump();
 					player.getImage().setRotation(-30);
 				}
 				// walls
@@ -99,9 +105,13 @@ public class Game extends BasicGame {
 
 				if (wallList.get(wallList.size() - 1).getX() < WIDTH - 400) {
 					createWalls();
+					audioController.playGoal();
 					score++;
 				}
 				if (checkCollision() || player.getY() < -1*player.getImageHeight() || player.getY() > HEIGHT) {
+					audioController.stopJump();
+					audioController.stopGoal();  
+					audioController.playDeath();
 					endGame();
 				}
 			} else if (gameState == State.END) {
@@ -120,7 +130,11 @@ public class Game extends BasicGame {
 				} else {
 					readyForNewGame = true;
 					if (input.isKeyPressed(Input.KEY_SPACE)) {
+						audioController.stopDeath();
 						startGame();
+					} else if (input.isKeyPressed(Input.KEY_M) && !isNewHighScore){
+						audioController.swapModes();
+						audioController.initSounds();
 					}
 				}
 				
@@ -183,6 +197,8 @@ public class Game extends BasicGame {
 		highscores = highscoreController.getHighScores();
 		if (highscoreController.checkNewScore(score)) {
 			isNewHighScore = true;
+			audioController.stopDeath();
+			audioController.playHighScore(); 
 		} else {
 			isNewHighScore = false;
 		}
